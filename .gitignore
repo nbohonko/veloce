@@ -7,3 +7,5 @@ debug.log
 # Gradle
 *.gradle
 build
+!build.gradle
+!settings.gradle

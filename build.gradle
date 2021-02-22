@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.8.1'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+description = 'veloce'
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+def junitVersion = "5.7.1"
+def allureVersion = "2.13.8"
+def cucumberVersion = "6.10.0"
+def selenideVersion = "5.18.1"
+def assertjVersion = "3.19.0"
+def lombokVersion = "1.18.8"
+def restAssuredVersion = "4.3.3"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+test {
+    useJUnitPlatform()
+
+    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+    systemProperty("junit.jupiter.execution.parallel.config.strategy", "dynamic")
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+}
+
+dependencies {
+    testRuntimeOnly "io.qameta.allure:allure-junit5:$allureVersion"
+    implementation (
+        "io.rest-assured:rest-assured:$restAssuredVersion",
+         "org.projectlombok:lombok:$lombokVersion"
+         )
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testImplementation (
+        "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+        "org.junit.jupiter:junit-jupiter-engine:$junitVersion",
+        "io.cucumber:cucumber-java:$cucumberVersion",
+        "io.cucumber:cucumber-junit:$cucumberVersion",
+        "com.codeborne:selenide:$selenideVersion",
+        "org.assertj:assertj-core:$assertjVersion",
+        "io.qameta.allure:allure-java-commons:$allureVersion",
+        "io.qameta.allure:allure-selenide:$allureVersion"
+        )
+    testCompile("io.qameta.allure:allure-cucumber6-jvm:$allureVersion")
+    compile files(
+        "libs/assertj-core-3.19.0.jar",
+        "libs/lombok-1.18.8.jar"
+        )
+    }
+
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+        systemProperty("allure.results.directory", "build/allure-results")
+        configurations
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty',
+                    '--plugin', 'io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm',
+                    '--glue',
+                    'steps' ,'src/test/resources' ]
+        }
+    }
+}
+
+allure {
+    autoconfigure = true
+    aspectjweaver = true
+    version = allureVersion
+
+    clean = true
+
+    useJUnit5 {
+        version = allureVersion
+    }
+}
+cucumber.finalizedBy 'allureReport'
