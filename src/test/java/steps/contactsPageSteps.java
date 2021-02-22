@@ -11,7 +11,7 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.switchTo;
 
-public class pageSteps {
+public class contactsPageSteps {
 
     @And("^user switches to Contacts Frame$")
     public void userSwitchesToContactsFrame() throws InterruptedException {
