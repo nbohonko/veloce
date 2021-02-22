@@ -1,0 +1,9 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+debug.log
+
+# Gradle
+*.gradle
+build
